@@ -1,0 +1,21 @@
+{
+  "name": "webpush-notification",
+  "version": "1.0.0",
+  "description": "Minimal library for sending notifications via the browser Push API",
+  "main": "build/pushNotification.js",
+  "dependencies": {
+    "jose": "^5.8.0"
+  },
+  "devDependencies": {
+    "base64url": "^3.0.1",
+    "js-crypto-hkdf": "^1.0.7",
+    "typescript": "^5.5.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "author": "Cole Crouter",
+  "license": "ISC",
+  "type": "module"
+}
