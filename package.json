@@ -1,6 +1,6 @@
 {
   "name": "web-push-browser",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Minimal library for sending notifications via the browser Push API",
   "main": "build/index.js",
   "dependencies": {
@@ -14,5 +14,11 @@
   },
   "author": "Cole Crouter",
   "license": "ISC",
-  "type": "module"
+  "type": "module",
+  "keywords": [
+    "push",
+    "notifications",
+    "web-push",
+    "browser"
+  ]
 }
