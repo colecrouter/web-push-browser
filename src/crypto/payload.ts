@@ -1,21 +1,23 @@
 import type { PushNotificationSubscription } from "../types.js";
 import { fromBase64Url } from "../utils/base64url.js";
 
+type EncryptionOptions = {
+	algorithm: "aesgcm" | "aes128gcm";
+};
+
 /**
  * Encrypt a plaintext payload using the keys provided by the PushSubscription.
  * @param payload - The plaintext payload to encrypt.
  * @param keys - The keys from the PushSubscription.
+ * @param options - Options for encryption. Defaults to AES128GCM if not specified.
  */
 export async function encryptPayload(
 	payload: string,
 	keys: PushNotificationSubscription["keys"],
+	options: EncryptionOptions = { algorithm: "aes128gcm" },
 ) {
 	const encoder = new TextEncoder();
 	const salt = crypto.getRandomValues(new Uint8Array(16));
-
-	if (!keys.p256dh || !keys.auth) {
-		throw new Error("Missing p256dh or auth key");
-	}
 
 	// Get the p256dh and auth keys from the subscription
 	const auth =
@@ -62,7 +64,7 @@ export async function encryptPayload(
 	);
 
 	// Derive the Content Encryption Key
-	const cekInfo = encoder.encode("Content-Encoding: aes128gcm");
+	const cekInfo = encoder.encode(`Content-Encoding: ${options.algorithm}`);
 	const cek = await crypto.subtle.deriveBits(
 		{
 			name: "HKDF",
@@ -95,24 +97,30 @@ export async function encryptPayload(
 		await crypto.subtle.exportKey("raw", localKeyPair.publicKey),
 	);
 
-	// Construct the header
-	const header = new Uint8Array([
-		...salt, // 16 bytes
-		...new Uint8Array(4), // 4 bytes for record size (we'll fill this later)
-		...serverPublicKeyBytes, // 65 bytes for public key
-	]);
+	let encrypted: ArrayBuffer;
 
-	// Construct the full message
-	const message = new Uint8Array([
-		...header,
-		...new Uint8Array(encryptedPayload),
-	]);
+	if (options.algorithm === "aes128gcm") {
+		const header = new Uint8Array([
+			...salt,
+			...new Uint8Array(4),
+			...serverPublicKeyBytes,
+		]);
 
-	// Now fill in the record size
-	const recordSize = new Uint32Array([encryptedPayload.byteLength]);
-	new Uint8Array(message.buffer, 16, 4).set(new Uint8Array(recordSize.buffer));
-	const encrypted = message.buffer;
-	const serverPublicKey = localKeyPair.publicKey;
+		const message = new Uint8Array([
+			...header,
+			...new Uint8Array(encryptedPayload),
+		]);
 
-	return { encrypted, salt, serverPublicKey };
+		const recordSize = new Uint32Array([encryptedPayload.byteLength]);
+		new Uint8Array(message.buffer, 16, 4).set(
+			new Uint8Array(recordSize.buffer),
+		);
+		encrypted = message.buffer;
+	} else {
+		// For 'aesgcm', we don't include the header in the encrypted payload
+		encrypted = encryptedPayload;
+	}
+	const localPublicKey = localKeyPair.publicKey;
+
+	return { encrypted, salt, localPublicKey };
 }
