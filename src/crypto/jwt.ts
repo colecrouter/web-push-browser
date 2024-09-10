@@ -1,4 +1,4 @@
-import { SignJWT } from "jose";
+import { toBase64Url } from "../utils/base64url";
 
 /**
  * Generate and sign a JWT token.
@@ -18,11 +18,44 @@ export async function createJWT(
 	const exp = Math.floor(Date.now() / 1000) + 12 * 60 * 60; // 12 hours from now
 	const sub = `mailto:${email}`;
 
-	return await new SignJWT({
-		aud,
-		exp,
-		sub,
-	})
-		.setProtectedHeader({ alg: "ES256", typ: "JWT" })
-		.sign(privateVapidKey);
+	return await signJWT(
+		{ alg: "ES256", typ: "JWT" },
+		{
+			aud,
+			exp,
+			sub,
+		},
+		privateVapidKey,
+	);
+}
+
+async function signJWT(
+	header: object,
+	payload: object,
+	privateKey: CryptoKey,
+): Promise<string> {
+	const encoder = new TextEncoder();
+
+	// Encode header and payload
+	const encodedHeader = toBase64Url(encoder.encode(JSON.stringify(header)));
+	const encodedPayload = toBase64Url(encoder.encode(JSON.stringify(payload)));
+
+	// Create the content to be signed
+	const content = `${encodedHeader}.${encodedPayload}`;
+
+	// Sign the content
+	const signature = await crypto.subtle.sign(
+		{
+			name: "ECDSA",
+			hash: { name: "SHA-256" },
+		},
+		privateKey,
+		encoder.encode(content),
+	);
+
+	// Convert the signature to base64url
+	const encodedSignature = toBase64Url(signature);
+
+	// Combine all parts to form the JWT
+	return `${content}.${encodedSignature}`;
 }

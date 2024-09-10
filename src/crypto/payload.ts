@@ -1,5 +1,5 @@
 import type { PushNotificationSubscription } from "../types.js";
-import { fromBase64Url } from "../utils/base64url.js";
+import { fromBase64Url, toBase64Url } from "../utils/base64url.js";
 
 type EncryptionOptions = {
 	algorithm: "aesgcm" | "aes128gcm";
@@ -100,22 +100,19 @@ export async function encryptPayload(
 	let encrypted: ArrayBuffer;
 
 	if (options.algorithm === "aes128gcm") {
-		const header = new Uint8Array([
-			...salt,
-			...new Uint8Array(4),
-			...serverPublicKeyBytes,
-		]);
+		// AES128GCM header format:
+		// Salt (16 bytes) || RS (4 bytes) || IdLen (1 byte) || PublicKey (65 bytes)
+		const recordSize = 4096; // You can adjust this value
+		const idLen = 65; // Length of the public key
 
-		const message = new Uint8Array([
-			...header,
-			...new Uint8Array(encryptedPayload),
-		]);
+		const header = new Uint8Array(16 + 4 + 1 + 65);
+		header.set(salt, 0); // Correctly setting the salt here
+		new DataView(header.buffer).setUint32(16, recordSize, false);
+		header[20] = idLen;
+		header.set(serverPublicKeyBytes, 21);
 
-		const recordSize = new Uint32Array([encryptedPayload.byteLength]);
-		new Uint8Array(message.buffer, 16, 4).set(
-			new Uint8Array(recordSize.buffer),
-		);
-		encrypted = message.buffer;
+		encrypted = new Uint8Array([...header, ...new Uint8Array(encryptedPayload)])
+			.buffer;
 	} else {
 		// For 'aesgcm', we don't include the header in the encrypted payload
 		encrypted = encryptedPayload;
