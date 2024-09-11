@@ -1,6 +1,6 @@
 {
   "name": "web-push-browser",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Minimal library for sending notifications via the browser Push API",
   "main": "build/index.js",
   "devDependencies": {
