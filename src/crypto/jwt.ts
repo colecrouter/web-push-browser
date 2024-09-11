@@ -1,4 +1,4 @@
-import { toBase64Url } from "../utils/base64url";
+import { toBase64Url } from "../utils/base64url.js";
 
 /**
  * Generate and sign a JWT token.
