@@ -8,7 +8,7 @@ type BaseOptions = {
 type AESGCMOptions = BaseOptions & {
 	algorithm: "aesgcm";
 	salt: ArrayBuffer;
-	localPublicKey: CryptoKey;
+	appServerPubKey: CryptoKey;
 };
 
 type AES128GCMOptions = BaseOptions & {
@@ -46,7 +46,7 @@ export async function generateHeaders(
 	if (options.algorithm === "aesgcm") {
 		const exportedLocalPubKey = await crypto.subtle.exportKey(
 			"raw",
-			options.localPublicKey,
+			options.appServerPubKey,
 		);
 		const encodedLocalPubKey = toBase64Url(exportedLocalPubKey);
 

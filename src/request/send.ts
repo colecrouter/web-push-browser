@@ -1,5 +1,5 @@
 import { createJWT } from "../crypto/jwt.js";
-import { encryptPayload } from "../crypto/payload.js";
+import { encryptPayload } from "../crypto/encrypt.js";
 import type { PushNotificationSubscription } from "../types.js";
 import { generateHeaders } from "./generate.js";
 
@@ -7,6 +7,7 @@ type EncryptionOptions = {
 	algorithm: "aesgcm" | "aes128gcm";
 	urgency?: "very-low" | "low" | "normal" | "high";
 	ttl?: number;
+	salt?: ArrayBuffer;
 };
 
 /**
@@ -31,13 +32,14 @@ export async function sendPushNotification(
 		new URL(subscription.endpoint),
 		email,
 	);
-	const { encrypted, salt, localPublicKey } = await encryptPayload(
+	const { encrypted, salt, appServerPublicKey } = await encryptPayload(
 		payload,
 		subscription.keys,
+		options,
 	);
 	const headers = await generateHeaders(vapidKeys.publicKey, jwt, encrypted, {
 		...options,
-		localPublicKey,
+		appServerPubKey: appServerPublicKey,
 		salt,
 	});
 	const request = new Request(subscription.endpoint, {

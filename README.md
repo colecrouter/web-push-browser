@@ -82,3 +82,6 @@ console.log(serializedKeys);
 ## Extended Usage
 
 This package only supports the basic functionality. If you need more advanced features, such as proxies, custom headers, etc. you can access the internal functions to create your own requests.
+
+> [!NOTE]
+> `aesgcm` is not completely implemented in this package. Please use `aes128gcm` instead.
