@@ -22,6 +22,16 @@
     "push",
     "notifications",
     "web-push",
-    "browser"
-  ]
+    "browser",
+    "esm",
+    "node",
+    "nodejs",
+    "cloudflare",
+    "deno",
+    "bun"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/colecrouter/web-push-browser"
+  }
 }
