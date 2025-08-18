@@ -1,8 +1,15 @@
 {
 	"name": "web-push-browser",
-	"version": "1.3.1",
-	"description": "Minimal library for sending notifications via the browser Push API",
+	"version": "1.4.0",
+	"description": "Zero-dependency Web Push (VAPID) for browsers, workers, Deno, Bun, and Node ESM — generate VAPID keys and send Push API notifications.",
 	"main": "build/index.js",
+	"types": "build/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./build/index.d.ts",
+			"import": "./build/index.js"
+		}
+	},
 	"devDependencies": {
 		"@types/jest": "^29.5.13",
 		"jest": "^29.7.0",
@@ -18,20 +25,46 @@
 	"author": "Cole Crouter",
 	"license": "ISC",
 	"type": "module",
+	"sideEffects": false,
 	"keywords": [
+		"web push",
 		"push",
+		"push api",
+		"push notifications",
 		"notifications",
-		"web-push",
+		"vapid",
+		"vapid keys",
+		"service worker",
+		"service-worker",
+		"subscription",
+		"push subscription",
+		"aes128gcm",
+		"aesgcm",
+		"encryption",
+		"payload encryption",
 		"browser",
-		"esm",
+		"workers",
+		"cloudflare workers",
+		"edge runtime",
+		"deno",
+		"bun",
 		"node",
 		"nodejs",
-		"cloudflare",
-		"deno",
-		"bun"
+		"esm",
+		"typescript",
+		"zero dependency"
 	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/colecrouter/web-push-browser"
-	}
+	},
+	"homepage": "https://github.com/colecrouter/web-push-browser#readme",
+	"bugs": {
+		"url": "https://github.com/colecrouter/web-push-browser/issues"
+	},
+	"files": [
+		"build",
+		"README.md",
+		"LICENSE"
+	]
 }

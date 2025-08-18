@@ -2,17 +2,23 @@
 
 > This project is not affiliated or based upon the original [web-push](https://github.com/web-push-libs/web-push) package or [web-push-lib](https://github.com/web-push-libs) organization.
 
-This package is aimed at being a lightweight replacement for [web-push](https://github.com/web-push-libs/web-push), as (at the time of writing) it relies on Node.js dependencies that are not available in the browser.
+Minimal, zero-dependency library for creating and sending Web Push (VAPID) notifications from environments without Node.js crypto shims — for example browsers, Cloudflare Workers, Deno, Bun, and other edge runtimes.
 
-## Installation
+Key features:
+
+- Runs in browsers, Cloudflare Workers, Deno, Bun, and Node
+- Zero dependencies; ESM-first and browser-friendly
+- VAPID key generation, serialization/deserialization
+- Payload encryption with aes128gcm (aesgcm partially supported)
+- Helper to generate the correct Web Push request headers and send the POST
+
+Install
 
 ```bash
 npm install web-push-browser
 ```
 
-## Example Usage
-
-### Subscribing a User
+## Subscribing to Push Notifications (Client)
 
 ```ts
 import { fromBase64Url } from 'web-push-browser';
@@ -38,7 +44,7 @@ try {
 }
 ```
 
-### Sending a Push Notification
+## Sending a Push Notification (Server)
 
 ```ts
 import { sendNotification, deserializeVapidKeys } from 'web-push-browser';
