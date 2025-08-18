@@ -3,20 +3,28 @@
  * @param data - The data to encode.
  * @returns The base64url encoded string.
  */
-export function toBase64Url<T extends ArrayBufferLike | string>(
+export function toBase64Url<T extends string | ArrayBuffer | ArrayBufferView>(
 	data: T,
 ): string {
-	const base64 = btoa(
+	const bytes =
 		typeof data === "string"
-			? data
-			: String.fromCharCode(...new Uint8Array(data)),
-	);
-	const base64Url = base64
-		.replace(/\+/g, "-")
-		.replace(/\//g, "_")
-		.replace(/=/g, "");
+			? new TextEncoder().encode(data) // Convert string to Uint8Array
+			: data instanceof ArrayBuffer
+				? new Uint8Array(data)
+				: new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
 
-	return base64Url;
+	// Convert bytes to string safely (avoiding call stack overflow)
+	let binaryString = "";
+	const chunkSize = 8192; // Process in chunks to avoid call stack limits
+
+	for (let i = 0; i < bytes.length; i += chunkSize) {
+		const chunk = bytes.subarray(i, i + chunkSize);
+		binaryString += String.fromCharCode(...chunk);
+	}
+
+	const base64 = btoa(binaryString);
+
+	return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
 /**
